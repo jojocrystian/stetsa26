@@ -63,4 +63,60 @@ showToast("Login berhasil!","success");
 setTimeout(function(){window.location.href="home.html";},900);
 }else{
 errEl.textContent=result.message||"Username atau password salah.";
-var car
+var card=document.querySelector(".login-card");
+if(card){card.style.animation="shake .4s";setTimeout(function(){card.style.animation="";},500);}
+}
+})
+.catch(function(err){
+txt.style.display="block";
+ldr.style.display="none";
+btn.disabled=false;
+errEl.textContent="Terjadi kesalahan koneksi.";
+console.error(err);
+});
+}
+
+function togglePassword(){
+var inp=document.getElementById("password");
+var ic=document.getElementById("eyeIcon");
+if(!inp){return;}
+if(inp.type==="password"){inp.type="text";ic.className="fas fa-eye-slash";}
+else{inp.type="password";ic.className="fas fa-eye";}
+}
+
+function logout(){
+clearSession("stetsa_session");
+showToast("Berhasil logout.","info");
+setTimeout(function(){window.location.href="index.html";},700);
+}
+
+function adminLogout(){
+clearSession("stetsa_admin_session");
+showToast("Berhasil logout.","info");
+setTimeout(function(){window.location.href="admin-login.html";},700);
+}
+
+function toggleDropdown(){
+var m=document.getElementById("dropdownMenu");
+if(m){m.classList.toggle("show");}
+}
+
+document.addEventListener("click",function(e){
+var m=document.getElementById("dropdownMenu");
+var btn=document.getElementById("avatarBtn");
+if(m&&btn&&!btn.contains(e.target)&&!m.contains(e.target)){m.classList.remove("show");}
+});
+
+function openModal(id){
+var m=document.getElementById(id);
+if(m){m.classList.add("open");}
+}
+
+function closeModal(id){
+var m=document.getElementById(id);
+if(m){m.classList.remove("open");}
+}
+
+document.addEventListener("click",function(e){
+if(e.target.classList.contains("modal-overlay")){e.target.classList.remove("open");}
+});

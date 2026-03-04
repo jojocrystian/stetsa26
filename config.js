@@ -51,4 +51,7 @@ if(!data){data={};}
 var body={action:action};
 var keys=Object.keys(data);
 for(var i=0;i<keys.length;i++){body[keys[i]]=data[keys[i]];}
-return fetch(CONFIG
+return fetch(CONFIG.API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+.then(function(r){if(!r.ok){throw new Error("HTTP "+r.status);}return r.json();})
+.catch(function(e){console.error(e);return{success:false,message:"Koneksi gagal."};});
+}
