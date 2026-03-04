@@ -1,59 +1,66 @@
+window.addEventListener("DOMContentLoaded",function(){
+setTimeout(function(){
+var ls=document.getElementById("loadingScreen");
+if(ls){ls.classList.add("hidden");}
+},900);
+var path=window.location.pathname;
+var session=getSession("stetsa_session");
+if(path.indexOf("admin")===-1){
+if(session&&(path.indexOf("index.html")!==-1||path==="/"||path.endsWith("/"))){
+window.location.href="home.html";return;
+}
+if(!session&&(path.indexOf("home.html")!==-1||path.indexOf("gallery.html")!==-1)){
+window.location.href="index.html";return;
+}
+}
+});
 
-import re
+function getSession(key){
+if(!key){key="stetsa_session";}
+try{
+var s=localStorage.getItem(key);
+if(!s){return null;}
+var p=JSON.parse(s);
+if(Date.now()>p.expires){localStorage.removeItem(key);return null;}
+return p;
+}catch(e){return null;}
+}
 
-# Hapus semua pola "= {}" dan "= []" yang merupakan default parameter
-# tapi JAGA yang merupakan assignment biasa seperti "var x = {}" atau "body = {}"
-# Pola default param ada di function signature: func(action, data = {})
-# Kita ganti hanya yang di dalam tanda kurung fungsi
+function setSession(data,key){
+if(!key){key="stetsa_session";}
+var session={};
+var keys=Object.keys(data);
+for(var i=0;i<keys.length;i++){session[keys[i]]=data[keys[i]];}
+session.expires=Date.now()+CONFIG.SESSION_DURATION;
+localStorage.setItem(key,JSON.stringify(session));
+}
 
-def clean_default_params(code):
-    # Hapus default param: ", varname = {}" atau ", varname = []" di function signature
-    code = re.sub(r',\s*(\w+)\s*=\s*\{\}', r', \1', code)
-    code = re.sub(r',\s*(\w+)\s*=\s*\[\]', r', \1', code)
-    # Hapus juga yang di awal: "function f(data = {})"
-    code = re.sub(r'\(\s*(\w+)\s*=\s*\{\}', r'(\1', code)
-    return code
+function clearSession(key){
+if(!key){key="stetsa_session";}
+localStorage.removeItem(key);
+}
 
-config_js2 = clean_default_params(config_js)
-auth_js2   = clean_default_params(auth_js)
-
-# Verifikasi ulang - cek konteks "= {}" yang tersisa
-# Perlu pastikan "= {}" yang tersisa adalah assignment biasa (var body = {}, bukan default param)
-def check_default_params(code, name):
-    lines = code.split("\n")
-    issues = []
-    for i, line in enumerate(lines):
-        # Default param pattern: inside function(..., x = {}) or function(x = {})
-        if re.search(r'function\s*\w*\s*\([^)]*=\s*[\{\[]', line):
-            issues.append("  Baris %d: %s" % (i+1, line.strip()))
-    return issues
-
-print("=== CEK DEFAULT PARAM config.js ===")
-issues = check_default_params(config_js2, "config")
-print("  BERSIH" if not issues else "\n".join(issues))
-
-print("=== CEK DEFAULT PARAM auth.js ===")
-issues2 = check_default_params(auth_js2, "auth")
-print("  BERSIH" if not issues2 else "\n".join(issues2))
-
-# Cek semua bahaya lain
-danger = ["`", "=>", "async "]
-print()
-for fname, code in [("config.js", config_js2), ("auth.js", auth_js2)]:
-    all_ok = True
-    for d in danger:
-        if d in code:
-            print("  %s MASIH ADA: %s" % (fname, d))
-            all_ok = False
-    if all_ok:
-        print("  %s: SEMUA BERSIH" % fname)
-
-# Simpan final
-with open("config.js", "w", encoding="utf-8", newline="\n") as f:
-    f.write(config_js2)
-with open("auth.js", "w", encoding="utf-8", newline="\n") as f:
-    f.write(auth_js2)
-
-print("\nFile disimpan!")
-print("config.js:", len(config_js2), "chars")
-print("auth.js  :", len(auth_js2), "chars")
+function handleLogin(e){
+e.preventDefault();
+var username=document.getElementById("username").value.trim();
+var password=document.getElementById("password").value.trim();
+var errEl=document.getElementById("errorMsg");
+var btn=document.getElementById("loginBtn");
+var txt=document.getElementById("loginBtnText");
+var ldr=document.getElementById("btnLoader");
+txt.style.display="none";
+ldr.style.display="block";
+btn.disabled=true;
+errEl.textContent="";
+apiCall("login",{username:username,password:password})
+.then(function(result){
+txt.style.display="block";
+ldr.style.display="none";
+btn.disabled=false;
+if(result.success){
+setSession(result.data,"stetsa_session");
+showToast("Login berhasil!","success");
+setTimeout(function(){window.location.href="home.html";},900);
+}else{
+errEl.textContent=result.message||"Username atau password salah.";
+var car
