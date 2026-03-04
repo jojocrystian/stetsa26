@@ -1,112 +1,274 @@
 
-config_js = """/* ============================================================
-   CONFIG.JS - Konfigurasi Global Stetsa'26
-   ============================================================ */
+# ============================================================
+# Buat ulang config.js + auth.js BERSIH
+# Tanpa: arrow function, template literal, async/await, const/let, spread, default param
+# ============================================================
 
-const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbw1BZPAvPKLHYHWvWYNZQHs3K97Y5DEK7RBgqzHF8nDCo4syfk6Vd_c9Rt9h4IK3G_B/exec",
-  WA_ADMIN: "6281311719622",
-  APP_NAME: "Photo Gallery Stetsa'26",
-  SESSION_DURATION: 28800000,
-  DEFAULT_SLIDES: [
-    "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1920",
-    "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1920",
-    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1920",
-    "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1920"
-  ]
-};
+# ===== config.js =====
+config_js = (
+'/* CONFIG.JS - Stetsa\'26 */\n'
+'\n'
+'var CONFIG = {\n'
+'  API_URL: "https://script.google.com/macros/s/AKfycbw1BZPAvPKLHYHWvWYNZQHs3K97Y5DEK7RBgqzHF8nDCo4syfk6Vd_c9Rt9h4IK3G_B/exec",\n'
+'  WA_ADMIN: "6281311719622",\n'
+'  APP_NAME: "Photo Gallery Stetsa\'26",\n'
+'  SESSION_DURATION: 28800000,\n'
+'  DEFAULT_SLIDES: [\n'
+'    "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1920",\n'
+'    "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1920",\n'
+'    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1920",\n'
+'    "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1920"\n'
+'  ]\n'
+'};\n'
+'\n'
+'function showToast(msg, type) {\n'
+'  if (!type) { type = "info"; }\n'
+'  var container = document.getElementById("toastContainer");\n'
+'  if (!container) {\n'
+'    container = document.createElement("div");\n'
+'    container.id = "toastContainer";\n'
+'    container.className = "toast-container";\n'
+'    document.body.appendChild(container);\n'
+'  }\n'
+'  var icons  = { success: "fa-check-circle", error: "fa-times-circle", info: "fa-info-circle" };\n'
+'  var colors = { success: "#10B981", error: "#EF4444", info: "#6C63FF" };\n'
+'  var toast  = document.createElement("div");\n'
+'  toast.className = "toast " + type;\n'
+'  toast.innerHTML = "<i class=\'fas " + icons[type] + "\' style=\'color:" + colors[type] + ";flex-shrink:0\'></i> " + msg;\n'
+'  container.appendChild(toast);\n'
+'  setTimeout(function() { toast.style.opacity = "0"; }, 3200);\n'
+'  setTimeout(function() { toast.remove(); }, 3700);\n'
+'}\n'
+'\n'
+'function animateCounter(el, target, duration) {\n'
+'  if (!el) { return; }\n'
+'  if (!duration) { duration = 1500; }\n'
+'  var start = 0;\n'
+'  var step  = target / (duration / 16);\n'
+'  var timer = setInterval(function() {\n'
+'    start += step;\n'
+'    if (start >= target) { start = target; clearInterval(timer); }\n'
+'    el.textContent = Math.floor(start).toLocaleString("id-ID");\n'
+'  }, 16);\n'
+'}\n'
+'\n'
+'function apiCall(action, data) {\n'
+'  if (!data) { data = {}; }\n'
+'  var params = new URLSearchParams();\n'
+'  params.append("action", action);\n'
+'  var keys = Object.keys(data);\n'
+'  for (var i = 0; i < keys.length; i++) {\n'
+'    params.append(keys[i], data[keys[i]]);\n'
+'  }\n'
+'  return fetch(CONFIG.API_URL + "?" + params.toString(), { method: "GET" })\n'
+'    .then(function(res) {\n'
+'      if (!res.ok) { throw new Error("HTTP " + res.status); }\n'
+'      return res.json();\n'
+'    })\n'
+'    .catch(function(e) {\n'
+'      console.error("[apiCall]", e);\n'
+'      return { success: false, message: "Koneksi gagal. Coba lagi." };\n'
+'    });\n'
+'}\n'
+'\n'
+'function apiPost(action, data) {\n'
+'  if (!data) { data = {}; }\n'
+'  var body = { action: action };\n'
+'  var keys = Object.keys(data);\n'
+'  for (var i = 0; i < keys.length; i++) {\n'
+'    body[keys[i]] = data[keys[i]];\n'
+'  }\n'
+'  return fetch(CONFIG.API_URL, {\n'
+'    method: "POST",\n'
+'    headers: { "Content-Type": "application/json" },\n'
+'    body: JSON.stringify(body)\n'
+'  })\n'
+'    .then(function(res) {\n'
+'      if (!res.ok) { throw new Error("HTTP " + res.status); }\n'
+'      return res.json();\n'
+'    })\n'
+'    .catch(function(e) {\n'
+'      console.error("[apiPost]", e);\n'
+'      return { success: false, message: "Koneksi gagal. Coba lagi." };\n'
+'    });\n'
+'}\n'
+)
 
-/* ============================================================
-   UTILITY FUNCTIONS
-   ============================================================ */
+# ===== auth.js =====
+auth_js = (
+'/* AUTH.JS - Stetsa\'26 */\n'
+'\n'
+'window.addEventListener("DOMContentLoaded", function() {\n'
+'  setTimeout(function() {\n'
+'    var ls = document.getElementById("loadingScreen");\n'
+'    if (ls) { ls.classList.add("hidden"); }\n'
+'  }, 900);\n'
+'\n'
+'  var path    = window.location.pathname;\n'
+'  var session = getSession("stetsa_session");\n'
+'\n'
+'  if (path.indexOf("admin") === -1) {\n'
+'    if (session && (path.indexOf("index.html") !== -1 || path === "/" || path.endsWith("/"))) {\n'
+'      window.location.href = "home.html";\n'
+'      return;\n'
+'    }\n'
+'    if (!session && (path.indexOf("home.html") !== -1 || path.indexOf("gallery.html") !== -1)) {\n'
+'      window.location.href = "index.html";\n'
+'      return;\n'
+'    }\n'
+'  }\n'
+'});\n'
+'\n'
+'function getSession(key) {\n'
+'  if (!key) { key = "stetsa_session"; }\n'
+'  try {\n'
+'    var s = localStorage.getItem(key);\n'
+'    if (!s) { return null; }\n'
+'    var parsed = JSON.parse(s);\n'
+'    if (Date.now() > parsed.expires) {\n'
+'      localStorage.removeItem(key);\n'
+'      return null;\n'
+'    }\n'
+'    return parsed;\n'
+'  } catch(e) {\n'
+'    return null;\n'
+'  }\n'
+'}\n'
+'\n'
+'function setSession(data, key) {\n'
+'  if (!key) { key = "stetsa_session"; }\n'
+'  var session = {};\n'
+'  var keys = Object.keys(data);\n'
+'  for (var i = 0; i < keys.length; i++) {\n'
+'    session[keys[i]] = data[keys[i]];\n'
+'  }\n'
+'  session.expires = Date.now() + CONFIG.SESSION_DURATION;\n'
+'  localStorage.setItem(key, JSON.stringify(session));\n'
+'}\n'
+'\n'
+'function clearSession(key) {\n'
+'  if (!key) { key = "stetsa_session"; }\n'
+'  localStorage.removeItem(key);\n'
+'}\n'
+'\n'
+'function handleLogin(e) {\n'
+'  e.preventDefault();\n'
+'  var username = document.getElementById("username").value.trim();\n'
+'  var password = document.getElementById("password").value.trim();\n'
+'  var errEl    = document.getElementById("errorMsg");\n'
+'  var btn      = document.getElementById("loginBtn");\n'
+'  var txt      = document.getElementById("loginBtnText");\n'
+'  var ldr      = document.getElementById("btnLoader");\n'
+'\n'
+'  txt.style.display = "none";\n'
+'  ldr.style.display = "block";\n'
+'  btn.disabled      = true;\n'
+'  errEl.textContent = "";\n'
+'\n'
+'  apiCall("login", { username: username, password: password })\n'
+'    .then(function(result) {\n'
+'      txt.style.display = "block";\n'
+'      ldr.style.display = "none";\n'
+'      btn.disabled      = false;\n'
+'      if (result.success) {\n'
+'        setSession(result.data, "stetsa_session");\n'
+'        showToast("Login berhasil!", "success");\n'
+'        setTimeout(function() { window.location.href = "home.html"; }, 900);\n'
+'      } else {\n'
+'        errEl.textContent = result.message || "Username atau password salah.";\n'
+'        var card = document.querySelector(".login-card");\n'
+'        if (card) {\n'
+'          card.style.animation = "shake .4s";\n'
+'          setTimeout(function() { card.style.animation = ""; }, 500);\n'
+'        }\n'
+'      }\n'
+'    })\n'
+'    .catch(function(err) {\n'
+'      txt.style.display = "block";\n'
+'      ldr.style.display = "none";\n'
+'      btn.disabled      = false;\n'
+'      errEl.textContent = "Terjadi kesalahan koneksi.";\n'
+'      console.error(err);\n'
+'    });\n'
+'}\n'
+'\n'
+'function togglePassword() {\n'
+'  var inp = document.getElementById("password");\n'
+'  var ic  = document.getElementById("eyeIcon");\n'
+'  if (!inp) { return; }\n'
+'  if (inp.type === "password") {\n'
+'    inp.type     = "text";\n'
+'    ic.className = "fas fa-eye-slash";\n'
+'  } else {\n'
+'    inp.type     = "password";\n'
+'    ic.className = "fas fa-eye";\n'
+'  }\n'
+'}\n'
+'\n'
+'function logout() {\n'
+'  clearSession("stetsa_session");\n'
+'  showToast("Berhasil logout.", "info");\n'
+'  setTimeout(function() { window.location.href = "index.html"; }, 700);\n'
+'}\n'
+'\n'
+'function adminLogout() {\n'
+'  clearSession("stetsa_admin_session");\n'
+'  showToast("Berhasil logout.", "info");\n'
+'  setTimeout(function() { window.location.href = "admin-login.html"; }, 700);\n'
+'}\n'
+'\n'
+'function toggleDropdown() {\n'
+'  var m = document.getElementById("dropdownMenu");\n'
+'  if (m) { m.classList.toggle("show"); }\n'
+'}\n'
+'\n'
+'document.addEventListener("click", function(e) {\n'
+'  var m   = document.getElementById("dropdownMenu");\n'
+'  var btn = document.getElementById("avatarBtn");\n'
+'  if (m && btn && !btn.contains(e.target) && !m.contains(e.target)) {\n'
+'    m.classList.remove("show");\n'
+'  }\n'
+'});\n'
+'\n'
+'function openModal(id) {\n'
+'  var m = document.getElementById(id);\n'
+'  if (m) { m.classList.add("open"); }\n'
+'}\n'
+'\n'
+'function closeModal(id) {\n'
+'  var m = document.getElementById(id);\n'
+'  if (m) { m.classList.remove("open"); }\n'
+'}\n'
+'\n'
+'document.addEventListener("click", function(e) {\n'
+'  if (e.target.classList.contains("modal-overlay")) {\n'
+'    e.target.classList.remove("open");\n'
+'  }\n'
+'});\n'
+)
 
-function showToast(msg, type) {
-  if (!type) type = "info";
-  var container = document.getElementById("toastContainer");
-  if (!container) {
-    container = document.createElement("div");
-    container.id = "toastContainer";
-    container.className = "toast-container";
-    document.body.appendChild(container);
-  }
-  var icons  = { success: "fa-check-circle", error: "fa-times-circle", info: "fa-info-circle" };
-  var colors = { success: "#10B981",          error: "#EF4444",          info: "#6C63FF" };
-  var toast  = document.createElement("div");
-  toast.className = "toast " + type;
-  toast.innerHTML = "<i class=\\"fas " + icons[type] + "\\" style=\\"color:" + colors[type] + ";flex-shrink:0\\"></i> " + msg;
-  container.appendChild(toast);
-  setTimeout(function() { toast.style.opacity = "0"; }, 3200);
-  setTimeout(function() { toast.remove(); }, 3700);
-}
-
-function animateCounter(el, target, duration) {
-  if (!el) return;
-  if (!duration) duration = 1500;
-  var start = 0;
-  var step  = target / (duration / 16);
-  var timer = setInterval(function() {
-    start += step;
-    if (start >= target) { start = target; clearInterval(timer); }
-    el.textContent = Math.floor(start).toLocaleString("id-ID");
-  }, 16);
-}
-
-function formatDate(dateStr) {
-  try {
-    return new Date(dateStr).toLocaleDateString("id-ID", {
-      day: "numeric", month: "long", year: "numeric"
-    });
-  } catch(e) { return dateStr; }
-}
-
-function apiCall(action, data) {
-  if (!data) data = {};
-  var params = new URLSearchParams({ action: action });
-  Object.keys(data).forEach(function(k) { params.append(k, data[k]); });
-  return fetch(CONFIG.API_URL + "?" + params.toString(), { method: "GET" })
-    .then(function(res) {
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res.json();
-    })
-    .catch(function(e) {
-      console.error("[apiCall] Error:", e);
-      return { success: false, message: "Koneksi ke server gagal. Coba lagi." };
-    });
-}
-
-function apiPost(action, data) {
-  if (!data) data = {};
-  var body = Object.assign({ action: action }, data);
-  return fetch(CONFIG.API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  })
-    .then(function(res) {
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res.json();
-    })
-    .catch(function(e) {
-      console.error("[apiPost] Error:", e);
-      return { success: false, message: "Koneksi ke server gagal. Coba lagi." };
-    });
-}
-"""
-
-with open("config.js", "w", encoding="utf-8") as f:
+# Simpan kedua file
+with open("config.js", "w", encoding="utf-8", newline="\n") as f:
     f.write(config_js)
 
-print(f"Panjang: {len(config_js)} chars")
+with open("auth.js", "w", encoding="utf-8", newline="\n") as f:
+    f.write(auth_js)
 
-# Verifikasi tidak ada karakter berbahaya
-import re
-# Cek apakah ada template literal atau arrow function
-has_template = "`" in config_js
-has_arrow    = "=>" in config_js
-has_async    = "async " in config_js
-has_const_inside_func = False
+# Verifikasi KETAT
+danger = ["`", "=>", "async ", "= {}", "= []", "..."]
+print("=== VERIFIKASI config.js ===")
+ok = True
+for d in danger:
+    found = d in config_js
+    if found: ok = False
+    print("  %-20s : %s" % (d, "DITEMUKAN!" if found else "OK"))
+print("  HASIL:", "BERSIH" if ok else "MASIH ADA MASALAH")
 
-print(f"Template literal  : {has_template}")
-print(f"Arrow function    : {has_arrow}")
-print(f"Async/await       : {has_async}")
-print("Semua bersih!" if not (has_template or has_arrow or has_async) else "Ada sintaks modern — sudah dibersihkan di versi ini")
+print()
+print("=== VERIFIKASI auth.js ===")
+ok2 = True
+for d in danger:
+    found = d in auth_js
+    if found: ok2 = False
+    print("  %-20s : %s" % (d, "DITEMUKAN!" if found else "OK"))
+print("  HASIL:", "BERSIH" if ok2 else "MASIH ADA MASALAH")
