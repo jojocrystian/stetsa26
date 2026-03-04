@@ -1,96 +1,118 @@
-/* ============================================================
-   AUTH.JS — Session & Login Logic
+
+auth_js = """/* ============================================================
+   AUTH.JS - Session & Login Logic Stetsa'26
    ============================================================ */
 
-window.addEventListener("DOMContentLoaded", () => {
-  // Sembunyikan loading screen
-  setTimeout(() => {
-    const ls = document.getElementById("loadingScreen");
+window.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var ls = document.getElementById("loadingScreen");
     if (ls) ls.classList.add("hidden");
   }, 900);
 
-  // Guard: redirect jika belum/sudah login
-  const path = window.location.pathname;
-  const session = getSession("stetsa_session");
+  var path    = window.location.pathname;
+  var session = getSession("stetsa_session");
 
-  if (!path.includes("admin")) {
-    if (session && (path.includes("index.html") || path.endsWith("/"))) {
-      window.location.href = "home.html"; return;
+  if (path.indexOf("admin") === -1) {
+    if (session && (path.indexOf("index.html") !== -1 || path === "/" || path.endsWith("/"))) {
+      window.location.href = "home.html";
+      return;
     }
-    if (!session && (path.includes("home.html") || path.includes("gallery.html"))) {
-      window.location.href = "index.html"; return;
+    if (!session && (path.indexOf("home.html") !== -1 || path.indexOf("gallery.html") !== -1)) {
+      window.location.href = "index.html";
+      return;
     }
   }
 });
 
-/* ===== SESSION MANAGEMENT ===== */
-function getSession(key = "stetsa_session") {
+/* ===== SESSION ===== */
+function getSession(key) {
+  if (!key) key = "stetsa_session";
   try {
-    const s = localStorage.getItem(key);
+    var s = localStorage.getItem(key);
     if (!s) return null;
-    const parsed = JSON.parse(s);
+    var parsed = JSON.parse(s);
     if (Date.now() > parsed.expires) {
       localStorage.removeItem(key);
       return null;
     }
     return parsed;
-  } catch { return null; }
+  } catch(e) {
+    return null;
+  }
 }
 
-function setSession(data, key = "stetsa_session") {
-  const session = { ...data, expires: Date.now() + CONFIG.SESSION_DURATION };
+function setSession(data, key) {
+  if (!key) key = "stetsa_session";
+  var session = {};
+  var keys = Object.keys(data);
+  for (var i = 0; i < keys.length; i++) {
+    session[keys[i]] = data[keys[i]];
+  }
+  session.expires = Date.now() + CONFIG.SESSION_DURATION;
   localStorage.setItem(key, JSON.stringify(session));
 }
 
-function clearSession(key = "stetsa_session") {
+function clearSession(key) {
+  if (!key) key = "stetsa_session";
   localStorage.removeItem(key);
 }
 
-/* ===== LOGIN HANDLER (Client) ===== */
-async function handleLogin(e) {
+/* ===== LOGIN ===== */
+function handleLogin(e) {
   e.preventDefault();
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const errEl    = document.getElementById("errorMsg");
-  const btn      = document.getElementById("loginBtn");
-  const txt      = document.getElementById("loginBtnText");
-  const ldr      = document.getElementById("btnLoader");
 
-  // Loading state
+  var username = document.getElementById("username").value.trim();
+  var password = document.getElementById("password").value.trim();
+  var errEl    = document.getElementById("errorMsg");
+  var btn      = document.getElementById("loginBtn");
+  var txt      = document.getElementById("loginBtnText");
+  var ldr      = document.getElementById("btnLoader");
+
   txt.style.display = "none";
   ldr.style.display = "block";
-  btn.disabled = true;
+  btn.disabled      = true;
   errEl.textContent = "";
 
-  const result = await apiCall("login", { username, password });
+  apiCall("login", { username: username, password: password })
+    .then(function(result) {
+      txt.style.display = "block";
+      ldr.style.display = "none";
+      btn.disabled      = false;
 
-  txt.style.display = "block";
-  ldr.style.display = "none";
-  btn.disabled = false;
-
-  if (result.success) {
-    setSession(result.data, "stetsa_session");
-    showToast("Login berhasil! Mengalihkan...", "success");
-    setTimeout(() => window.location.href = "home.html", 900);
-  } else {
-    errEl.textContent = "Username atau password salah / belum terdaftar.";
-    const card = document.querySelector(".login-card");
-    if (card) {
-      card.style.animation = "shake .4s";
-      setTimeout(() => card.style.animation = "", 500);
-    }
-  }
+      if (result.success) {
+        setSession(result.data, "stetsa_session");
+        showToast("Login berhasil! Mengalihkan...", "success");
+        setTimeout(function() {
+          window.location.href = "home.html";
+        }, 900);
+      } else {
+        errEl.textContent = result.message || "Username atau password salah / belum terdaftar.";
+        var card = document.querySelector(".login-card");
+        if (card) {
+          card.style.animation = "shake .4s";
+          setTimeout(function() { card.style.animation = ""; }, 500);
+        }
+      }
+    })
+    .catch(function(err) {
+      txt.style.display = "block";
+      ldr.style.display = "none";
+      btn.disabled      = false;
+      errEl.textContent = "Terjadi kesalahan. Coba lagi.";
+      console.error(err);
+    });
 }
 
 /* ===== TOGGLE PASSWORD ===== */
 function togglePassword() {
-  const inp = document.getElementById("password");
-  const ic  = document.getElementById("eyeIcon");
+  var inp = document.getElementById("password");
+  var ic  = document.getElementById("eyeIcon");
+  if (!inp) return;
   if (inp.type === "password") {
-    inp.type = "text";
+    inp.type    = "text";
     ic.className = "fas fa-eye-slash";
   } else {
-    inp.type = "password";
+    inp.type    = "password";
     ic.className = "fas fa-eye";
   }
 }
@@ -99,37 +121,70 @@ function togglePassword() {
 function logout() {
   clearSession("stetsa_session");
   showToast("Berhasil logout.", "info");
-  setTimeout(() => window.location.href = "index.html", 700);
+  setTimeout(function() {
+    window.location.href = "index.html";
+  }, 700);
 }
 
-/* ===== DROPDOWN TOGGLE ===== */
+function adminLogout() {
+  clearSession("stetsa_admin_session");
+  showToast("Berhasil logout.", "info");
+  setTimeout(function() {
+    window.location.href = "admin-login.html";
+  }, 700);
+}
+
+/* ===== DROPDOWN ===== */
 function toggleDropdown() {
-  const m = document.getElementById("dropdownMenu");
+  var m = document.getElementById("dropdownMenu");
   if (m) m.classList.toggle("show");
 }
 
-// Tutup dropdown jika klik di luar
-document.addEventListener("click", (e) => {
-  const m   = document.getElementById("dropdownMenu");
-  const btn = document.getElementById("avatarBtn");
+document.addEventListener("click", function(e) {
+  var m   = document.getElementById("dropdownMenu");
+  var btn = document.getElementById("avatarBtn");
   if (m && btn && !btn.contains(e.target) && !m.contains(e.target)) {
     m.classList.remove("show");
   }
 });
 
-/* ===== MODAL HELPERS ===== */
+/* ===== MODAL ===== */
 function openModal(id) {
-  const m = document.getElementById(id);
+  var m = document.getElementById(id);
   if (m) m.classList.add("open");
 }
+
 function closeModal(id) {
-  const m = document.getElementById(id);
+  var m = document.getElementById(id);
   if (m) m.classList.remove("open");
 }
 
-// Tutup modal jika klik di luar box
-document.addEventListener("click", (e) => {
+document.addEventListener("click", function(e) {
   if (e.target.classList.contains("modal-overlay")) {
     e.target.classList.remove("open");
   }
 });
+"""
+
+with open("auth.js", "w", encoding="utf-8") as f:
+    f.write(auth_js)
+
+# Verifikasi tidak ada sintaks berbahaya
+checks = {
+  "Template literal (`)": "`" in auth_js,
+  "Arrow function (=>)":  "=>" in auth_js,
+  "async/await":          "async " in auth_js,
+  "Default param (= {})": "= {}" in auth_js,
+  "Spread (...)":         "...d" in auth_js,
+}
+
+print("=== HASIL VERIFIKASI auth.js ===")
+all_ok = True
+for k, v in checks.items():
+    status = "DITEMUKAN" if v else "OK"
+    if v: all_ok = False
+    print(f"  {k:30s} : {status}")
+
+print()
+print("KESIMPULAN:", "BERSIH - Siap dipakai!" if all_ok else "Masih ada sintaks bermasalah!")
+print(f"Ukuran file: {len(auth_js)} karakter")
