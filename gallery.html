@@ -1,0 +1,94 @@
+
+### 3. gallery.html ###
+gallery_html = '''<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery - Stetsa\'26</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="gallery-body">
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loader-ring"></div><p>Loading...</p>
+  </div>
+  <div class="bg-image" style="opacity:.2"></div>
+  <div class="bg-overlay"></div>
+
+  <nav class="navbar">
+    <a href="home.html" class="navbar-brand" style="text-decoration:none;color:inherit">
+      <i class="fas fa-arrow-left" style="font-size:15px"></i>&nbsp; Kembali
+    </a>
+    <div class="navbar-brand" style="position:absolute;left:50%;transform:translateX(-50%)">
+      <i class="fas fa-images"></i> Gallery
+    </div>
+    <div class="nav-actions" style="position:relative">
+      <div class="avatar-btn" id="avatarBtn" onclick="toggleDropdown()">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="dropdown-menu" id="dropdownMenu">
+        <div class="dropdown-item" onclick="location.href=\'home.html\'">
+          <i class="fas fa-home"></i> Home
+        </div>
+        <div class="dropdown-item" onclick="logout()" style="color:#ef4444">
+          <i class="fas fa-sign-out-alt" style="color:#ef4444"></i> Logout
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="gallery-content">
+    <div class="gallery-header">
+      <h1><i class="fas fa-images"></i> Galeri Foto Stetsa\'26</h1>
+      <p id="gallerySubtitle">Memuat foto...</p>
+    </div>
+
+    <!-- Album Tabs -->
+    <div class="album-tabs" id="albumTabs">
+      <div class="album-tab active" onclick="filterAlbum(\'all\',this)">
+        <i class="fas fa-th"></i> Semua
+      </div>
+    </div>
+
+    <!-- Foto Grid -->
+    <div class="photo-grid" id="photoGrid">
+      <!-- Skeleton loading -->
+      <div class="photo-skeleton"></div>
+      <div class="photo-skeleton"></div>
+      <div class="photo-skeleton"></div>
+      <div class="photo-skeleton"></div>
+      <div class="photo-skeleton"></div>
+      <div class="photo-skeleton"></div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <button class="lightbox-nav prev" onclick="lightboxNav(-1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="">
+    <button class="lightbox-nav next" onclick="lightboxNav(1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+    <div class="lightbox-info" id="lightboxInfo"></div>
+    <button class="lightbox-download" onclick="downloadCurrentPhoto()">
+      <i class="fas fa-download"></i> Download HD
+    </button>
+  </div>
+
+  <a href="#" onclick="window.open(\'https://wa.me/\'+CONFIG.WA_ADMIN,\'_blank\')" class="wa-float">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="gallery.js"></script>
+</body>
+</html>'''
+
+with open("gallery.html","w",encoding="utf-8") as f: f.write(gallery_html)
+print("✅ gallery.html")

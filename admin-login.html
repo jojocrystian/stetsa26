@@ -1,0 +1,100 @@
+
+### 4. admin-login.html ###
+admin_login_html = '''<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login - Stetsa\'26</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="login-body">
+  <div class="bg-overlay"></div>
+  <div class="bg-image" style="background-image:url(\'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1920\')"></div>
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loader-ring"></div><p>Loading...</p>
+  </div>
+
+  <div class="login-container">
+    <div class="login-card glass">
+      <div class="login-logo" style="color:#f59e0b"><i class="fas fa-user-shield"></i></div>
+      <h1 class="login-title">Admin Panel</h1>
+      <h2 class="login-subtitle">Stetsa\'26 — Committee Only</h2>
+      <form onsubmit="adminLogin(event)">
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input type="text" id="username" placeholder="Username" required autocomplete="off">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" placeholder="Password" required>
+          <span class="toggle-pw" onclick="togglePassword()">
+            <i class="fas fa-eye" id="eyeIcon"></i>
+          </span>
+        </div>
+        <div class="error-msg" id="errorMsg"></div>
+        <button type="submit" class="btn-login" id="loginBtn"
+          style="background:linear-gradient(135deg,#f59e0b,#ef4444)">
+          <span id="loginBtnText">Masuk</span>
+          <div class="btn-loader" id="btnLoader"></div>
+        </button>
+        <a href="#" onclick="window.open(\'https://wa.me/\'+CONFIG.WA_ADMIN,\'_blank\')" class="contact-admin">
+          <i class="fab fa-whatsapp"></i> Hubungi Admin
+        </a>
+      </form>
+      <div style="margin-top:20px;text-align:center">
+        <a href="index.html" style="font-size:13px;color:rgba(255,255,255,.4);text-decoration:none">
+          <i class="fas fa-arrow-left"></i> Kembali ke Login Siswa
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    // Cek jika sudah login admin
+    window.addEventListener("DOMContentLoaded", () => {
+      const s = getSession("stetsa_admin_session");
+      if (s) window.location.href = "admin.html";
+    });
+
+    async function adminLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errEl   = document.getElementById("errorMsg");
+      const btn     = document.getElementById("loginBtn");
+      const txt     = document.getElementById("loginBtnText");
+      const ldr     = document.getElementById("btnLoader");
+
+      txt.style.display = "none";
+      ldr.style.display = "block";
+      btn.disabled = true;
+      errEl.textContent = "";
+
+      const result = await apiCall("adminLogin", { username, password });
+
+      txt.style.display = "block";
+      ldr.style.display = "none";
+      btn.disabled = false;
+
+      if (result.success) {
+        setSession(result.data, "stetsa_admin_session");
+        showToast("Login berhasil!", "success");
+        setTimeout(() => window.location.href = "admin.html", 800);
+      } else {
+        errEl.textContent = "Username atau password salah / belum terdaftar.";
+        const card = document.querySelector(".login-card");
+        card.style.animation = "shake .4s";
+        setTimeout(() => card.style.animation = "", 500);
+      }
+    }
+  </script>
+</body>
+</html>'''
+
+with open("admin-login.html","w",encoding="utf-8") as f: f.write(admin_login_html)
+print("✅ admin-login.html")
