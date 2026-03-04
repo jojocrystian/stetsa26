@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Stetsa'26</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+  <div class="bg-overlay"></div>
+  <div class="bg-image"></div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <i class="fas fa-crown"></i>
+      Admin Panel
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">Dashboard</div>
+      <a class="nav-link active" onclick="showPage('dashboard')">
+        <i class="fas fa-chart-line"></i>
+        Dashboard
+      </a>
+      <div class="nav-section">Data Siswa</div>
+      <a class="nav-link" onclick="showPage('classes')">
+        <i class="fas fa-users"></i>
+        Kelas
+      </a>
+      <a class="nav-link" onclick="showPage('students')">
+        <i class="fas fa-user-graduate"></i>
+        Siswa
+      </a>
+      <div class="nav-section">Galeri</div>
+      <a class="nav-link" onclick="showPage('albums')">
+        <i class="fas fa-layer-group"></i>
+        Album
+      </a>
+      <a class="nav-link" onclick="showPage('photos')">
+        <i class="fas fa-images"></i>
+        Foto
+      </a>
+      <div class="nav-section">Konten</div>
+      <a class="nav-link" onclick="showPage('impressions')">
+        <i class="fas fa-comment"></i>
+        Pesan & Kesan
+      </a>
+      <a class="nav-link" onclick="showPage('yearbook')">
+        <i class="fas fa-book"></i>
+        Yearbook
+      </a>
+      <div class="nav-section">Event</div>
+      <a class="nav-link" onclick="showPage('event')">
+        <i class="fas fa-calendar-alt"></i>
+        Countdown
+      </a>
+      <div class="nav-section">Pengaturan</div>
+      <a class="nav-link" onclick="showPage('appearance')">
+        <i class="fas fa-palette"></i>
+        Tampilan
+      </a>
+      <a class="nav-link" onclick="showPage('admins')">
+        <i class="fas fa-user-shield"></i>
+        Admin
+      </a>
+      <a class="nav-link" onclick="showPage('logs')">
+        <i class="fas fa-chart-bar"></i>
+        Log
+      </a>
+    </div>
+  </div>
+
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <h2 id="topbarTitle">Dashboard</h2>
+      <div class="topbar-right">
+        <i class="fas fa-bars sidebar-toggle" onclick="toggleSidebar()"></i>
+        <div class="avatar-btn" id="avatarBtn" onclick="toggleDropdown()">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="dropdown-menu" id="dropdownMenu">
+          <div class="dropdown-item" onclick="showStudentData()">
+            <i class="fas fa-info-circle"></i>
+            Info Akun
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" onclick="adminLogout()">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="page-subtitle">Ringkasan aktivitas sistem</div>
+      <div class="stats-grid">
+        <div class="stats-box">
+          <div class="stats-box-icon">
+            <i class="fas fa-user-graduate"></i>
+          </div>
+          <div>
+            <div class="stats-box-num" id="st-students">0</div>
+            <div class="stats-box-label">Total Siswa</div>
+          </div>
+        </div>
+        <div class="stats-box">
+          <div class="stats-box-icon">
+            <i class="fas fa-images"></i>
+          </div>
+          <div>
+            <div class="stats-box-num" id="st-photos">0</div>
+            <div class="stats-box-label">Total Foto</div>
+          </div>
+        </div>
+        <div class="stats-box">
+          <div class="stats-box-icon">
+            <i class="fas fa-download"></i>
+          </div>
+          <div>
+            <div class="stats-box-num" id="st-downloads">0</div>
+            <div class="stats-box-label">Download</div>
+          </div>
+        </div>
+        <div class="stats-box">
+          <div class="stats-box-icon">
+            <i class="fas fa-eye"></i>
+          </div>
+          <div>
+            <div class="stats-box-num" id="st-views">0</div>
+            <div class="stats-box-label">Views</div>
+          </div>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="table-header">
+          <h3>Aktivitas Terbaru</h3>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Aksi</th>
+                <th>Waktu</th>
+              </tr>
+            </thead>
+            <tbody id="recentLogs">
+              <tr>
+                <td colspan="3" class="empty-row">Memuat...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-classes">
+      <div class="page-title">Manajemen Kelas</div>
+      <div class="page-subtitle">Kelola kelas dan jumlah siswa</div>
+      <button class="btn btn-primary" onclick="openModal('addClassModal')">
+        <i class="fas fa-plus"></i> Tambah Kelas
+      </button>
+      <div class="table-container" style="margin-top: 20px;">
+        <div class="table-header">
+          <h3>Daftar Kelas</h3>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nama Kelas</th>
+                <th>Jumlah Siswa</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="classTableBody">
+              <tr>
+                <td colspan="4" class="empty-row">Memuat...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-students">
+      <div class="page-title">Manajemen Siswa</div>
+      <div class="page-subtitle">Kelola data siswa per kelas</div>
+      <div style="display:flex;gap:12px;margin-bottom:20px;">
+        <button class="btn btn-primary" onclick="openModal('addStudentModal')">
+          <i class="fas fa-plus"></i> Tambah Siswa
+        </button>
+        <button class="btn btn-outline" onclick="openModal('importStudentModal')">
+          <i class="fas fa-file-excel"></i> Import Excel
+        </button>
+      </div>
+      <div style="margin-bottom:20px;">
+        <input type="text" class="form-control" placeholder="Cari nama/NIS..." oninput="filterStudents(this.value)" style="max-width:300px;">
+        <select class="form-control" id="classFilter" onchange="loadStudents()" style="max-width:200px;margin-left:10px;">
+          <option value="">Semua Kelas</option>
+        </select>
+      </div>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nama</th>
+              <th>NIS</th>
+              <th>Kelas</th>
+              <th>Status Bayar</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody">
+            <tr>
+              <td colspan="6" class="empty-row">Memuat...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page" id="page-albums">
+      <div class="page-title">Manajemen Album</div>
+      <div class="page-subtitle">Kelola album foto per kelas</div>
+      <button class="btn btn-primary" onclick="openModal('addAlbumModal')">
+        <i class="fas fa-plus"></i> Buat Album
+      </button>
+      <div class="album-grid" id="albumGrid">
+        Memuat...
+      </div>
+    </div>
+
+    <div class="page" id="page-photos">
+      <div class="page-title">Kelola Foto</div>
+      <div class="page-subtitle">Upload dan hapus foto per album</div>
+      <select class="form-control" id="photoAlbumFilter" onchange="loadAdminPhotos()" style="max-width:250px;margin-bottom:20px;">
+        <option value="">Pilih Album</option>
+      </select>
+      <button class="btn btn-primary" onclick="openUploadModal()">
+        <i class="fas fa-upload"></i> Upload Foto
+      </button>
+      <div class="photo-grid" id="adminPhotoGrid" style="margin-top:20px;">
+        Pilih album terlebih dahulu
+      </div>
+    </div>
+
+    <div class="page" id="page-impressions">
+      <div class="page-title">Pesan & Kesan</div>
+      <div class="page-subtitle">Kelola komentar siswa</div>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Pesan</th>
+              <th>Tanggal</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="impressionTableBody">
+            <tr>
+              <td colspan="5" class="empty-row">Memuat...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page" id="page-yearbook">
+      <div class="page-title">Yearbook Digital</div>
+      <div class="page-subtitle">Upload PDF Yearbook</div>
+      <input type="file" id="yearbookInput" accept=".pdf" onchange="uploadYearbook(event)" style="margin-bottom:20px;">
+      <div id="yearbookStatus" style="padding:20px;background:rgba(255,255,255,0.05);border-radius:12px;">
+        Belum ada yearbook yang diupload
+      </div>
+    </div>
+
+    <div class="page" id="page-event">
+      <div class="page-title">Event & Countdown</div>
+      <div class="page-subtitle">Atur countdown acara</div>
+      <div class="form-group">
+        <label class="form-label">Judul Event</label>
+        <input type="text" class="form-control" id="eventTitle" placeholder="Prom Night 2026">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tanggal Countdown</label>
+        <input type="datetime-local" class="form-control" id="eventDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deskripsi</label>
+        <textarea class="form-control" id="eventDesc" rows="3" placeholder="Deskripsi event..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="checkbox-item">
+          <input type="checkbox" id="countdownActive">
+          Tampilkan Countdown di Home
+        </label>
+      </div>
+      <button class="btn btn-primary" onclick="saveEvent()">
+        <i class="fas fa-save"></i> Simpan
+      </button>
+    </div>
+
+    <div class="page" id="page-appearance">
+      <div class="page-title">Tampilan & Tema</div>
+      <div class="page-subtitle">Kustomisasi warna dan background</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;">
+        <div class="form-group">
+          <label class="form-label">Warna Utama</label>
+          <input type="color" class="form-control" id="primaryHex" value="#6C63FF">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Warna Aksen</label>
+          <input type="color" class="form-control" id="accentHex" value="#FF6584">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Background</label>
+          <input type="file" id="bgInput" accept="image/*" onchange="previewBg(event)">
+          <img id="bgPreview" style="width:100%;height:120px;object-fit:cover;border-radius:10px;margin-top:8px;display:none;">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveAppearance()" style="margin-top:20px;">
+        <i class="fas fa-save"></i> Simpan Tema
+      </button>
+    </div>
+
+    <div class="page" id="page-admins">
+      <div class="page-title">Manajemen Admin</div>
+      <div class="page-subtitle">Kelola akun admin</div>
+      <button class="btn btn-primary" onclick="openModal('addAdminModal')">
+        <i class="fas fa-plus"></i> Tambah Admin
+      </button>
+      <div class="table-container" style="margin-top:20px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <tr>
+              <td colspan="4" class="empty-row">Memuat...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page" id="page-logs">
+      <div class="page-title">Statistik & Log</div>
+      <div class="page-subtitle">Riwayat aktivitas lengkap</div>
+      <div class="stats-grid">
+        <div class="stats-box">
+          <div class="stats-box-icon">
+            <i class="fas fa-sign-in-alt"></i>
+          </div>
+          <div>
+            <div class="stats-box-num" id="log-logins">0</div>
+            <div class="stats-box-label">Total Login</div>
+          </div>
+        </div>
+        <div class="stats-box">
+          <div class="stats-box-icon">
+            <i class="fas fa-download"></i>
+          </div>
+          <div>
+            <div class="stats-box-num" id="log-downloads">0</div>
+            <div class="stats-box-label">Total Download</div>
+          </div>
+        </div>
+        <div class="stats-box">
+          <div class="stats-box-icon">
+            <i class="fas fa-star"></i>
+          </div>
+          <div>
+            <div class="stats-box-num" id="log-rating">-</div>
+            <div class="stats-box-label">Rating Rata-rata</div>
+          </div>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="table-header">
+          <h3>Log Aktivitas</h3>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Aksi</th>
+                <th>Waktu</th>
+              </tr>
+            </thead>
+            <tbody id="activityLogs">
+              <tr>
+                <td colspan="3" class="empty-row">Memuat...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Tambah Kelas -->
+  <div class="modal-overlay" id="addClassModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Tambah Kelas</h3>
+        <i class="fas fa-times modal-close" onclick="closeModal('addClassModal')"></i>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama Kelas</label>
+        <input type="text" class="form-control" id="newClassName" placeholder="XII IPA 1">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('addClassModal')">Batal</button>
+        <button class="btn btn-primary" onclick="addClass()">Tambah</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Tambah Siswa -->
+  <div class="modal-overlay" id="addStudentModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Tambah Siswa</h3>
+        <i class="fas fa-times modal-close" onclick="closeModal('addStudentModal')"></i>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap</label>
+        <input type="text" class="form-control" id="newStudentName">
+      </div>
+      <div class="form-group">
+        <label class="form-label">NIS</label>
+        <input type="text" class="form-control" id="newStudentNIS">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kelas</label>
+        <select class="form-control" id="newStudentClass">
+          <option value="">Pilih Kelas</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status Bayar</label>
+        <select class="form-control" id="newStudentPayment">
+          <option value="paid">Lunas</option>
+          <option value="unpaid">Belum Bayar</option>
+          <option value="not">Tidak Ikut</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('addStudentModal')">Batal</button>
+        <button class="btn btn-primary" onclick="addStudent()">Tambah</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Import Siswa -->
+  <div class="modal-overlay" id="importStudentModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Import Siswa dari Google Sheets</h3>
+        <i class="fas fa-times modal-close" onclick="closeModal('importStudentModal')"></i>
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL Google Sheets</label>
+        <input type="url" class="form-control" id="spreadsheetUrl" placeholder="https://docs.google.com/spreadsheets/d/xxx/edit#gid=0">
+        <small class="form-text">Format kolom: Nama, NIS, Kelas, Status Bayar</small>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('importStudentModal')">Batal</button>
+        <button class="btn btn-primary" onclick="importFromSpreadsheet()">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Tambah Album -->
+  <div class="modal-overlay" id="addAlbumModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Buat Album Baru</h3>
+        <i class="fas fa-times modal-close" onclick="closeModal('addAlbumModal')"></i>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama Album</label>
+        <input type="text" class="form-control" id="newAlbumName" placeholder="Yearbook 2026">
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          <input type="checkbox" id="albumAllClass" onchange="toggleAllClass(this)" checked>
+          Semua Kelas
+        </label>
+        <div id="albumClassChecklist" style="margin-top:8px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('addAlbumModal')">Batal</button>
+        <button class="btn btn-primary" onclick="addAlbum()">Buat Album</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Upload Foto -->
+  <div class="modal-overlay" id="uploadPhotoModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Upload Foto</h3>
+        <i class="fas fa-times modal-close" onclick="closeModal('uploadPhotoModal')"></i>
+      </div>
+      <div style="display:flex;gap:12px;margin-bottom:20px;">
+        <div class="album-tab" id="tabLocalBtn" onclick="setUploadMode('local')" style="border-color:var(--primary);color:var(--primary);">
+          Local Files
+        </div>
+        <div class="album-tab" id="tabDriveBtn" onclick="setUploadMode('drive')">
+          Google Drive
+        </div>
+      </div>
+      <div id="uploadLocalSection">
+        <div class="upload-zone" id="uploadZone" ondrop="handleDrop(event)" ondragover="event.preventDefault()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Drop file atau klik untuk pilih</p>
+          <p class="sub">Max 50 foto sekaligus</p>
+          <input type="file" id="photoFiles" accept="image/*" multiple style="display:none" onchange="handlePhotoFiles(event)">
+        </div>
+        <div style="text-align:center;margin-top:15px;">
+          <div id="uploadCount" style="font-weight:500;"></div>
+          <div id="uploadPreviewList" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px;"></div>
+        </div>
+        <select class="form-control" id="uploadAlbumId" style="margin-top:20px;">
+          <option value="">Pilih Album</option>
+        </select>
+        <button class="btn btn-primary" id="uploadBtn" onclick="startBulkUpload()" style="margin-top:15px;width:100%;">
+          <i class="fas fa-upload"></i> Upload Semua
+        </button>
+      </div>
+      <div id="uploadDriveSection" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Link Folder Google Drive</label>
+          <input type="url" class="form-control" id="driveFolderLink" placeholder="https://drive.google.com/drive/folders/xxx">
+          <small class="form-text">Hanya file JPG/PNG yang akan diimport</small>
+        </div>
+        <select class="form-control" id="uploadAlbumIdDrive">
+          <option value="">Pilih Album</option>
+        </select>
+        <button class="btn btn-primary" onclick="importFromDrive()" style="width:100%;margin-top:15px;">
+          <i class="fas fa-google-drive"></i> Import dari Drive
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('uploadPhotoModal')">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Tambah Admin -->
+  <div class="modal-overlay" id="addAdminModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Tambah Admin</h3>
+        <i class="fas fa-times modal-close" onclick="closeModal('addAdminModal')"></i>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap</label>
+        <input type="text" class="form-control" id="newAdminName">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" class="form-control" id="newAdminUser">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="newAdminPass">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('addAdminModal')">Batal</button>
+        <button class="btn btn-primary" onclick="addAdmin()">Tambah</button>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+// ===== GLOBAL CONFIG =====
+var API_URL = "https://script.google.com/macros/s/AKfycbw1BZPAvPKLHYHWvWYNZQHs3K97Y5DEK7RBgqzHF8nDCo4syfk6Vd_c9Rt9h4IK3G_B/exec";
+
+// ===== UTILS =====
+function showToast(msg, type) {
+  if (!type) { type = "info"; }
+  var c = document.getElementById("toastContainer");
+  if (!c) {
+    c = document.createElement("div");
+    c.id = "toastContainer";
+    c.className = "toast-container";
+    document.body.appendChild(c);
+  }
+  var icons  = { success: "fa-check-circle", error: "fa-times-circle", info: "fa-info-circle" };
+  var colors = { success: "#10B981", error: "#EF4444", info: "#6C63FF" };
+  var t = document.createElement("div");
+  t.className = "toast " + type;
+  t.innerHTML = "<i class='fas " + icons[type] + "' style='color:" + colors[type] + ";flex-shrink:0'></i> " + msg;
+  c.appendChild(t);
+  setTimeout(function() { t.style.opacity = "0"; }, 3200);
+  setTimeout(function() { t.remove(); }, 3700);
+}
+
+function apiCall(action, data) {
+  if (!data) { data = {}; }
+  var p = new URLSearchParams();
+  p.append("action", action);
+  var keys = Object.keys(data);
+  for (var i = 0; i < keys.length; i++) {
+    p.append(keys[i], data[keys[i]]);
+  }
+  return fetch(API_URL + "?" + p.toString(), { method: "GET" })
+    .then(function(r) {
+      if (!r.ok) { throw new Error("HTTP " + r.status); }
+      return r.json();
+    })
+    .catch(function(e) {
+      console.error(e);
+      return { success: false, message: "Koneksi gagal." };
+    });
+}
+
+function apiPost(action, data) {
+  if (!data) { data = {}; }
+  var body = { action: action };
+  var keys = Object.keys(data);
+  for (var i = 0; i < keys.length; i++) {
+    body[keys[i]] = data[keys[i]];
+  }
+  return fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  })
+    .then(function(r) {
+      if (!r.ok) { throw new Error("HTTP " + r.status); }
+      return r.json();
+    })
+    .catch(function(e) {
+      console.error(e);
+      return { success: false, message: "Koneksi gagal." };
+    });
+}
+
+function getSession(key) {
+  if (!key) { key = "stetsa_admin_session"; }
+  try {
+    var s = localStorage.getItem(key);
+    if (!s) { return null; }
+    var parsed = JSON.parse(s);
+    if (Date.now() > parsed.expires) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return parsed;
+  } catch(e) {
+    return null;
+  }
+}
+
+// ===== INIT =====
+window.addEventListener("DOMContentLoaded", function() {
+  var session = getSession("stetsa_admin_session");
+  if (!session) {
+    window.location.href = "admin-login.html";
+    return;
+  }
+  var nameEl = document.getElementById("topbarTitle");
+  if (nameEl) { nameEl.textContent = session.name || "Admin"; }
+  loadDashboard();
+});
+
+// ===== DASHBOARD =====
+function loadDashboard() {
+  apiCall("adminGetStats").then(function(res) {
+    if (!res.success) { return; }
+    var d = res.data;
+    animateCounter(document.getElementById("st-students"), d.students || 0);
+    animateCounter(document.getElementById("st-photos"), d.photos || 0);
+    animateCounter(document.getElementById("st-downloads"), d.downloads || 0);
+    animateCounter(document.getElementById("st-views"), d.views || 0);
+    var logsEl = document.getElementById("recentLogs");
+    if (logsEl && d.recentLogs) {
+      logsEl.innerHTML = d.recentLogs.length ? d.recentLogs.map(function(l) {
+        return "<tr><td>" + l.name + "</td><td>Login</td><td>" + l.time + "</td></tr>";
+      }).join("") : "<tr><td colspan='3' class='empty-row'>Belum ada aktivitas</td></tr>";
+    }
+  });
+}
+
+// ===== PAGES =====
+function showPage(name) {
+  var pages = document.querySelectorAll(".page");
+  var links = document.querySelectorAll(".nav-link");
+  pages.forEach(function(p) { p.classList.remove("active"); });
+  links.forEach(function(l) { l.classList.remove("active"); });
+  var page = document.getElementById("page-" + name);
+  if (page) { page.classList.add("active"); }
+  var titles = {
+    dashboard: "Dashboard", classes: "Kelas", students: "Siswa", albums: "Album",
+    photos: "Foto", impressions: "Pesan & Kesan", yearbook: "Yearbook",
+    event: "Event", appearance: "Tampilan", admins: "Admin", logs: "Log"
+  };
+  var topbar = document.getElementById("topbarTitle");
+  if (topbar) { topbar.textContent = titles[name] || name; }
+  var loaders = {
+    dashboard: loadDashboard,
+    classes: loadClasses,
+    students: loadStudentPage,
+    albums: loadAlbums,
+    photos: loadAdminPhotos,
+    impressions: loadImpressionAdmin,
+    admins: loadAdmins,
+    logs: loadLogs
+  };
+  if (loaders[name]) { loaders[name](); }
+}
+
+// ===== SIDEBAR =====
+function toggleSidebar() {
+  var sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("open");
+}
+
+function toggleDropdown() {
+  var m = document.getElementById("dropdownMenu");
+  if (m) { m.classList.toggle("show"); }
+}
+
+function adminLogout() {
+  localStorage.removeItem("stetsa_admin_session");
+  showToast("Logout berhasil.", "info");
+  setTimeout(function() { window.location.href = "admin-login.html"; }, 700);
+}
+
+// ===== KELAS =====
+function loadClasses() {
+  apiCall("adminGetClasses").then(function(res) {
+    var tbody = document.getElementById("classTableBody");
+    if (!res.success || !res.data) {
+      tbody.innerHTML = "<tr><td colspan='4' class='empty-row'>Belum ada kelas</td></tr>";
+      return;
+    }
+    tbody.innerHTML = res.data.map(function(c, i) {
+      return "<tr><td>" + (i+1) + "</td><td>" + c.name + "</td><td>" + c.studentCount + " siswa</td><td>" +
+        "<button class='btn btn-primary btn-sm btn-icon' onclick='viewClassStudents(\"" + c.id + "\")'><i class='fas fa-eye'></i></button>" +
+        "<button class='btn btn-danger btn-sm btn-icon' onclick='deleteClass(\"" + c.id + "\")'><i class='fas fa-trash'></i></button></td></tr>";
+    }).join("");
+  });
+}
+
+function addClass() {
+  var name = document.getElementById("newClassName").value.trim();
+  if (!name) { showToast("Nama kelas wajib diisi!", "error"); return; }
+  apiPost("adminAddClass", { name: name }).then(function(res) {
+    if (res.success) {
+      showToast("Kelas ditambahkan!", "success");
+      closeModal("addClassModal");
+      document.getElementById("newClassName").value = "";
+      loadClasses();
+    } else {
+      showToast(res.message, "error");
+    }
+  });
+}
+
+function deleteClass(id) {
+  if (!confirm("Hapus kelas?")) { return; }
+  apiPost("adminDeleteClass", { classId: id }).then(function(res) {
+    if (res.success) {
+      showToast("Kelas dihapus.", "success");
+      loadClasses();
+    } else {
+      showToast(res.message, "error");
+    }
+  });
+}
+
+// ===== SISWA =====
+function loadStudentPage() {
+  loadStudents();
+}
+
+function loadStudents() {
+  var classId = document.getElementById("classFilter") ? document.getElementById("classFilter").value : "";
+  apiCall("adminGetStudents", classId ? { classId: classId } : {}).then(function(res) {
+    var tbody = document.getElementById("studentTableBody");
+    if (!res.success || !res.data) {
+      tbody.innerHTML = "<tr><td colspan='6' class='empty-row'>Tidak ada siswa</td></tr>";
+      return;
+    }
+    var payLabel = { paid: "Lunas", unpaid: "Belum Bayar", "not": "Tidak Ikut" };
+    tbody.innerHTML = res.data.map(function(s, i) {
+      return "<tr><td>" + (i+1) + "</td><td>" + s.name + "</td><td>" + s.nis + "</td><td>" + s.className + "</td>" +
+        "<td><span class='badge badge-" + (s.paymentStatus === "paid" ? "success" : s.paymentStatus === "unpaid" ? "warning" : "danger") + "'>" + 
+        (payLabel[s.paymentStatus] || "-") + "</span></td><td>" +
+        "<button class='btn btn-danger btn-sm btn-icon' onclick='deleteStudent(\"" + s.id + "\")'><i class='fas fa-trash'></i></button></td></tr>";
+    }).join("");
+  });
+}
+
+function filterStudents(q) {
+  var rows = document.querySelectorAll("#studentTableBody tr");
+  for (var i = 1; i < rows.length; i++) {
+    var text = rows[i].textContent.toLowerCase();
+    rows[i].style.display = text.indexOf(q.toLowerCase()) !== -1 ? "" : "none";
+  }
+}
+
+function addStudent() {
+  var name = document.getElementById("newStudentName").value.trim();
+  var nis = document.getElementById("newStudentNIS").value.trim();
+  var classId = document.getElementById("newStudentClass").value;
+  var status = document.getElementById("newStudentPayment").value;
+  if (!name || !nis) { showToast("Nama dan NIS wajib!", "error"); return; }
+  apiPost("adminAddStudent", { name: name, nis: nis, classId: classId, paymentStatus: status }).then(function(res) {
+    if (res.success) {
+      showToast("Siswa ditambahkan!", "success");
+      closeModal("addStudentModal");
+      document.getElementById("newStudentName").value = "";
+      document.getElementById("newStudentNIS").value = "";
+      loadStudents();
+    } else {
+      showToast(res.message, "error");
+    }
+  });
+}
+
+function deleteStudent(id) {
+  if (!confirm("Hapus siswa?")) { return; }
+  apiPost("adminDeleteStudent", { studentId: id }).then(function(res) {
+    if (res.success) {
+      showToast("Siswa dihapus.", "success");
+      loadStudents();
+    } else {
+      showToast(res.message, "error");
+    }
+  });
+}
+
+// ===== ALBUM =====
+function loadAlbums() {
+  apiCall("adminGetAlbums").then(function(res) {
+    var grid = document.getElementById("albumGrid");
+    if (!res.success || !res.data) {
+      grid.innerHTML = "<p>Tidak ada album. Buat album baru!</p>";
+      return;
+    }
+    grid.innerHTML = res.data.map(function(a) {
+      return "<div class='album-card'><div class='album-thumb' style='background-image:url(" + (a.thumbnailUrl || "") + ")'></div>" +
+        "<div class='album-info'><h4>" + a.name + "</h4><p>" + a.photoCount + " foto &bull; " + a.classNames + "</p>" +
+        "<div class='album-actions'><button class='btn btn-primary btn-sm' onclick='goToAlbumPhotos(\"" + a.id + "\")'>" +
+        "<i class='fas fa-images'></i> Kelola Foto</button>" +
+        "<button class='btn btn-danger btn-sm' onclick='deleteAlbum(\"" + a.id + "\")'><i class='fas fa-trash'></i></button></div></div></div>";
+    }).join("");
+  });
+}
+
+function addAlbum() {
+  var name = document.getElementById("newAlbumName").value.trim();
+  if (!name) { showToast("Nama album wajib!", "error"); return; }
+  var allCls = document.getElementById("albumAllClass").checked;
+  var classes = allCls ? ["all"] : [];
+  var checkboxes = document.querySelectorAll("#albumClassChecklist input:checked");
+  for (var i = 0; i < checkboxes.length; i++) {
+    classes.push(checkboxes[i].value);
+  }
+  apiPost("adminAddAlbum", { name: name, classes: classes }).then(function(res) {
+    if (res.success) {
+      showToast("Album dibuat!", "success");
+      closeModal("addAlbumModal");
+      document.getElementById("newAlbumName").value = "";
+      loadAlbums();
+    } else {
+      showToast(res.message, "error");
+    }
+  });
+}
+
+function deleteAlbum(id) {
+  if (!confirm("Hapus album dan semua fotonya?")) { return; }
+  apiPost("adminDeleteAlbum", { albumId: id }).then(function(res) {
+    if (res.success) {
+      showToast("Album dihapus.", "success");
+      loadAlbums();
+    } else {
+      showToast(res.message, "error");
+    }
+  });
+}
+
+// ===== UPLOAD =====
+function openUploadModal() {
+  loadAlbums();
+  setUploadMode("local");
+  openModal("uploadPhotoModal");
+}
+
+function setUploadMode(mode) {
+  var local = document.getElementById("uploadLocalSection");
+  var drive = document.getElementById("uploadDriveSection");
+  var tabLocal = document.getElementById("tabLocalBtn");
+  var tabDrive = document.getElementById("tabDriveBtn");
+  if (mode === "local") {
+    local.style.display = "block";
+    drive.style.display = "none";
+    tabLocal.style.borderColor = "var(--primary)";
+    tabLocal.style.color = "var(--primary)";
+    tabDrive.style.borderColor = "";
+    tabDrive.style.color = "";
+  } else {
+    local.style.display = "none";
+    drive.style.display = "block";
+    tabLocal.style.borderColor = "";
+    tabLocal.style.color = "";
+    tabDrive.style.borderColor = "var(--primary)";
+    tabDrive.style.color = "var(--primary)";
+  }
+}
+
+var uploadFiles = [];
+function handlePhotoFiles(e) {
+  uploadFiles = Array.from(e.target.files);
+  var preview = document.getElementById("uploadPreviewList");
+  var count = document.getElementById("uploadCount");
+  preview.innerHTML = "";
+  var shown = uploadFiles.slice(0, 8);
+  for (var i = 0; i < shown.length; i++) {
+    var url = URL.createObjectURL(shown[i]);
+    var img = document.createElement("img");
+    img.src = url;
+    img.style = "width:58px;height:58px;border-radius:8px;object-fit:cover";
+    preview.appendChild(img);
+  }
+  if (uploadFiles.length > 8) {
+    var extra = document.createElement("div");
+    extra.style = "width:58px;height:58px;border-radius:8px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px";
+    extra.textContent = "+" + (uploadFiles.length - 8);
+    preview.appendChild(extra);
+  }
+  count.textContent = uploadFiles.length + " foto siap diupload";
+}
+
+function startBulkUpload() {
+  var albumId = document.getElementById("uploadAlbumId").value;
+  if (!albumId) { showToast("Pilih album!", "error"); return; }
+  if (!uploadFiles.length) { showToast("Pilih foto!", "error"); return; }
+  var btn = document.getElementById("uploadBtn");
+  btn.disabled = true;
+  var total = uploadFiles.length;
+  var success = 0;
+  var current = 0;
+  function uploadNext() {
+    if (current >= total) {
+      btn.disabled = false;
+      btn.textContent = "Upload Selesai";
+      showToast(success + "/" + total + " berhasil!", success > 0 ? "success" : "error");
+      if (success > 0) {
+        closeModal("uploadPhotoModal");
+        loadAdminPhotos();
+        loadAlbums();
+      }
+      return;
+    }
+    var file = uploadFiles[current];
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      apiPost("adminUploadPhoto", { albumId: albumId, base64: e.target.result, name: file.name }).then(function(res) {
+        if (res.success) { success++; }
+        current++;
+        btn.textContent = "Upload " + (current + 1) + "/" + total;
+        uploadNext();
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+  uploadNext();
+}
+
+// ===== LAINNYA =====
+function loadAdminPhotos() {
+  var albumId = document.getElementById("photoAlbumFilter").value;
+  if (!albumId) { return; }
+  apiCall("adminGetPhotos", { albumId: albumId }).then(function(res) {
+    var grid = document.getElementById("adminPhotoGrid");
+    if (!res.success || !res.data) {
+      grid.innerHTML = "<p>Tidak ada foto di album ini</p>";
+      return;
+    }
+    grid.innerHTML = res.data.map(function(p) {
+      return "<div class='photo-card'><img src='" + (p.thumbnailUrl || p.url) + "'><div class='photo-overlay'>" +
+        "<button class='photo-btn' onclick='adminDeletePhoto(\"" + p.id + "\")'><i class='fas fa-trash'></i></button></div></div>";
+    }).join("");
+  });
+}
+
+function adminDeletePhoto(id) {
+  if (!confirm("Hapus foto ini?")) { return; }
+  apiPost("adminDeletePhoto", { photoId: id }).then(function(res) {
+    if (res.success) {
+      showToast("Foto dihapus.", "success");
+      loadAdminPhotos();
+    } else {
+      showToast(res.message, "error");
+    }
+  });
+}
+
+function loadImpressionAdmin() {
+  apiCall("adminGetImpressions").then(function(res) {
+    var tbody = document.getElementById("impressionTableBody");
+    if (!res.success || !res.data) {
+      tbody.innerHTML = "<tr><td colspan='5' class='empty-row'>Belum ada pesan</td></tr>";
+      return;
+    }
+    tbody.innerHTML = res.data.map(function(imp) {
+      return "<tr><td><b>" + imp.name + "</b></td><td style='max-width:280px'>" + imp.text + "</td><td>" + imp.date + "</td>" +
+        "<td>" + (imp.hidden ? "<span class='badge badge-danger'>Disembunyikan</span>" : "<span class='badge badge-success'>Tampil</span>") +
+        (imp.pinned ? "<span class='badge badge-warning'>Pin</span>" : "") + "</td>" +
+        "<td><button class='btn btn-outline btn-sm' onclick='toggleImpression(\"" + imp.id + "\','pin')'>" + 
+        (imp.pinned ? "Unpin" : "Pin") + "</button>" +
+        "<button class='btn btn-outline btn-sm' onclick='toggleImpression(\"" + imp.id + "\','hide')'>" +
+        (imp.hidden ? "Tampilkan" : "Sembunyikan") + "</button>" +
+        "<button class='btn btn-danger btn-sm' onclick='deleteImpression(\"" + imp.id + "\")'>Hapus</button></td></tr>";
+    }).join("");
+  });
+}
+
+function toggleImpression(id, action) {
+  apiPost("adminToggleImpression", { id: id, action: action }).then(function(res) {
+    if (res.success) { loadImpressionAdmin(); }
+  });
+}
+
+function deleteImpression(id) {
+  if (!confirm("Hapus pesan?")) { return; }
+  apiPost("adminDeleteImpression", { id: id }).then(function(res) {
+    if (res.success) {
+      showToast("Pesan dihapus.", "success");
+      loadImpressionAdmin();
+    }
+  });
+}
+
+function loadAdmins() {
+  apiCall("adminGetAdmins").then(function(res) {
+    var tbody = document.getElementById("adminTableBody");
+    if (!res.success || !res.data) {
+      tbody.innerHTML = "<tr><td colspan='4' class='empty-row'>Belum ada admin</td></tr>";
+      return;
+    }
+    tbody.innerHTML = res.data.map(function(a) {
+      return "<tr><td>" + a.name + "</td><td>" + a.username + "</td><td><span class='badge badge-success'>" + a.role + "</span></td>" +
+        "<td><button class='btn btn-danger btn-sm btn-icon' onclick='deleteAdmin(\"" + a.id + "\")'>" +
+        "<i class='fas fa-trash'></i></button></td></tr>";
+    }).join("");
+  });
+}
+
+function addAdmin() {
+  var name = document.getElementById("newAdminName").value.trim();
+  var username = document.getElementById("newAdminUser").value.trim();
+  var password = document.getElementById("newAdminPass").value;
+  if (!name || !username || !password) { showToast("Semua field wajib!", "error"); return; }
+  apiPost("adminAddAdmin", { name: name, username: username, password: password }).then(function(res) {
+    if (res.success) {
+      showToast("Admin ditambahkan!", "success");
+      closeModal("addAdminModal");
+      document.getElementById("newAdminName").value = "";
+      document.getElementById("newAdminUser").value = "";
+      document.getElementById("newAdminPass").value = "";
+      loadAdmins();
+    } else {
+      showToast(res.message, "error");
+    }
+  });
+}
+
+function deleteAdmin(id) {
+  if (!confirm("Hapus admin?")) { return; }
+  apiPost("adminDeleteAdmin", { adminId: id }).then(function(res) {
+    if (res.success) {
+      showToast("Admin dihapus.", "success");
+      loadAdmins();
+    } else {
+      showToast(res.message, "error");
+    }
+  });
+}
+
+function loadLogs() {
+  apiCall("adminGetLogs").then(function(res) {
+    if (!res.success || !res.data) { return; }
+    var d = res.data;
+    animateCounter(document.getElementById("log-logins"), d.totalLogins || 0);
+    animateCounter(document.getElementById("log-downloads"), d.totalDownloads || 0);
+    document.getElementById("log-rating").textContent = d.avgRating || "-";
+    var tbody = document.getElementById("activityLogs");
+    if (d.logs) {
+      tbody.innerHTML = d.logs.length ? d.logs.map(function(l) {
+        return "<tr><td>" + l.user + "</td><td>" + l.action + "</td><td>" + l.time + "</td></tr>";
+      }).join("") : "<tr><td colspan='3' class='empty-row'>Belum ada log</td></tr>";
+    }
+  });
+}
+
+function uploadYearbook(e) {
+  var file = e.target.files[0];
+  if (!file) { return; }
+  showToast("Mengupload yearbook...", "info");
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    apiPost("adminUploadYearbook", { base64: ev.target.result, name: file.name }).then(function(res) {
+      var status = document.getElementById("yearbookStatus");
+      if (res.success) {
+        status.innerHTML = "<p style='color:#10B981'><i class='fas fa-check-circle'></i> <b>" + file.name + "</b> berhasil diupload. " +
+          "<a href='" + res.url + "' target='_blank' style='color:var(--primary)'>Lihat PDF</a></p>";
+        showToast("Yearbook berhasil!", "success");
+      } else {
+        status.innerHTML = "<p style='color:#ef4444'><i class='fas fa-times-circle'></i> Gagal: " + res.message + "</p>";
+        showToast(res.message, "error");
+      }
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveEvent() {
+  var d = {
+    title: document.getElementById("eventTitle").value.trim(),
+    date: document.getElementById("eventDate").value,
+    desc: document.getElementById("eventDesc").value.trim(),
+    countdownActive: document.getElementById("countdownActive").checked
+  };
+  apiPost("adminSaveEvent", d).then(function(res) {
+    showToast(res.success ? "Event disimpan!" : res.message, res.success ? "success" : "error");
+  });
+}
+
+function saveAppearance() {
+  var d = {};
+  d.primaryColor = document.getElementById("primaryHex").value;
+  d.accentColor = document.getElementById("accentHex").value;
+  var bgFile = document.getElementById("bgInput").files[0];
+  if (bgFile) {
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      d.bgBase64 = ev.target.result;
+      apiPost("adminSaveAppearance", d).then(function(res) {
+        showToast(res.success ? "Tema disimpan!" : res.message, res.success ? "success" : "error");
+      });
+    };
+    reader.readAsDataURL(bgFile);
+  } else {
+    apiPost("adminSaveAppearance", d).then(function(res) {
+      showToast(res.success ? "Tema disimpan!" : res.message, res.success ? "success" : "error");
+    });
+  }
+}
+
+function previewBg(e) {
+  var file = e.target.files[0];
+  if (!file) { return; }
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var prev = document.getElementById("bgPreview");
+    prev.src = ev.target.result;
+    prev.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+}
+
+function openModal(id) {
+  var m = document.getElementById(id);
+  if (m) { m.classList.add("open"); }
+}
+
+function closeModal(id) {
+  var m = document.getElementById(id);
+  if (m) { m.classList.remove("open"); }
+}
+
+document.addEventListener("click", function(e) {
+  if (e.target.classList.contains("modal-overlay")) {
+    e.target.classList.remove("open");
+  }
+});
+
+function toggleAllClass(cb) {
+  var checks = document.querySelectorAll("#albumClassChecklist input");
+  for (var i = 0; i < checks.length; i++) {
+    checks[i].disabled = cb.checked;
+    checks[i].checked = false;
+  }
+}
+
+function toggleSidebar() {
+  var sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("open");
+}
+
+function goToAlbumPhotos(id) {
+  showPage("photos");
+  setTimeout(function() {
+    var sel = document.getElementById("photoAlbumFilter");
+    if (sel) { sel.value = id; loadAdminPhotos(); }
+  }, 300);
+}
+
+function viewClassStudents(id) {
+  showPage("students");
+  setTimeout(function() {
+    var sel = document.getElementById("classFilter");
+    if (sel) { sel.value = id; loadStudents(); }
+  }, 300);
+}
+
+function importFromSpreadsheet() {
+  var url = document.getElementById("spreadsheetUrl").value.trim();
+  if (!url) { showToast("Masukkan URL!", "error"); return; }
+  apiPost("adminImportStudents", { sheetUrl: url }).then(function(res) {
+    if (res.success) {
+      showToast(res.count + " siswa diimport!", "success");
+      closeModal("importStudentModal");
+      loadStudents();
+    } else {
+      showToast(res.message, "error");
+    }
+  });
+}
+
+function importFromDrive() {
+  var link = document.getElementById("driveFolderLink").value.trim();
+  var albumId = document.getElementById("uploadAlbumIdDrive").value;
+  if (!link) { showToast("Masukkan link folder!", "error"); return; }
+  if (!albumId) { showToast("Pilih album!", "error"); return; }
+  apiPost("adminImportFromDrive", { folderLink: link, albumId: albumId }).then(function(res) {
+    if (res.success) {
+      showToast(res.count + " foto diimport!", "success");
+      closeModal("uploadPhotoModal");
+      loadAdminPhotos();
+      loadAlbums();
+    } else {
+      showToast(res.message, "error");
+    }
+  });
+}
+
+animateCounter = function(el, target, duration) {
+  if (!el) { return; }
+  if (!duration) { duration = 1500; }
+  var start = 0;
+  var step = target / (duration / 16);
+  var timer = setInterval(function() {
+    start += step;
+    if (start >= target) { start = target; clearInterval(timer); }
+    el.textContent = Math.floor(start).toLocaleString("id-ID");
+  }, 16);
+};
+
+</script>
+</html>
