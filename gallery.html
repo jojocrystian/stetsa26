@@ -1,18 +1,17 @@
-
-### 3. gallery.html ###
-gallery_html = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gallery - Stetsa\'26</title>
+<title>Gallery - Stetsa'26</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="gallery-body">
   <div class="loading-screen" id="loadingScreen">
-    <div class="loader-ring"></div><p>Loading...</p>
+    <div class="loader-ring"></div>
+    <p>Loading...</p>
   </div>
   <div class="bg-image" style="opacity:.2"></div>
   <div class="bg-overlay"></div>
@@ -29,7 +28,7 @@ gallery_html = '''<!DOCTYPE html>
         <i class="fas fa-user"></i>
       </div>
       <div class="dropdown-menu" id="dropdownMenu">
-        <div class="dropdown-item" onclick="location.href=\'home.html\'">
+        <div class="dropdown-item" onclick="location.href='home.html'">
           <i class="fas fa-home"></i> Home
         </div>
         <div class="dropdown-item" onclick="logout()" style="color:#ef4444">
@@ -41,20 +40,17 @@ gallery_html = '''<!DOCTYPE html>
 
   <div class="gallery-content">
     <div class="gallery-header">
-      <h1><i class="fas fa-images"></i> Galeri Foto Stetsa\'26</h1>
+      <h1><i class="fas fa-images"></i> Galeri Foto Stetsa'26</h1>
       <p id="gallerySubtitle">Memuat foto...</p>
     </div>
 
-    <!-- Album Tabs -->
     <div class="album-tabs" id="albumTabs">
-      <div class="album-tab active" onclick="filterAlbum(\'all\',this)">
+      <div class="album-tab active" onclick="filterAlbum('all',this)">
         <i class="fas fa-th"></i> Semua
       </div>
     </div>
 
-    <!-- Foto Grid -->
     <div class="photo-grid" id="photoGrid">
-      <!-- Skeleton loading -->
       <div class="photo-skeleton"></div>
       <div class="photo-skeleton"></div>
       <div class="photo-skeleton"></div>
@@ -64,7 +60,6 @@ gallery_html = '''<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- Lightbox -->
   <div class="lightbox" id="lightbox">
     <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
     <button class="lightbox-nav prev" onclick="lightboxNav(-1)">
@@ -80,15 +75,247 @@ gallery_html = '''<!DOCTYPE html>
     </button>
   </div>
 
-  <a href="#" onclick="window.open(\'https://wa.me/\'+CONFIG.WA_ADMIN,\'_blank\')" class="wa-float">
+  <a href="#" onclick="window.open('https://wa.me/6281311719622','_blank')" class="wa-float">
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <script src="config.js"></script>
-  <script src="auth.js"></script>
-  <script src="gallery.js"></script>
-</body>
-</html>'''
+<script>
+var API_URL = "https://script.google.com/macros/s/AKfycbw1BZPAvPKLHYHWvWYNZQHs3K97Y5DEK7RBgqzHF8nDCo4syfk6Vd_c9Rt9h4IK3G_B/exec";
+var SESSION_DURATION = 28800000;
 
-with open("gallery.html","w",encoding="utf-8") as f: f.write(gallery_html)
-print("✅ gallery.html")
+function showToast(msg, type) {
+  if (!type) { type = "info"; }
+  var c = document.getElementById("toastContainer");
+  if (!c) {
+    c = document.createElement("div");
+    c.id = "toastContainer";
+    c.className = "toast-container";
+    document.body.appendChild(c);
+  }
+  var icons  = { success: "fa-check-circle", error: "fa-times-circle", info: "fa-info-circle" };
+  var colors = { success: "#10B981", error: "#EF4444", info: "#6C63FF" };
+  var t = document.createElement("div");
+  t.className = "toast " + type;
+  t.innerHTML = "<i class='fas " + icons[type] + "' style='color:" + colors[type] + ";flex-shrink:0'></i> " + msg;
+  c.appendChild(t);
+  setTimeout(function() { t.style.opacity = "0"; }, 3200);
+  setTimeout(function() { t.remove(); }, 3700);
+}
+
+function apiCall(action, data) {
+  if (!data) { data = {}; }
+  var p = new URLSearchParams();
+  p.append("action", action);
+  var keys = Object.keys(data);
+  for (var i = 0; i < keys.length; i++) {
+    p.append(keys[i], data[keys[i]]);
+  }
+  return fetch(API_URL + "?" + p.toString(), { method: "GET" })
+    .then(function(r) {
+      if (!r.ok) { throw new Error("HTTP " + r.status); }
+      return r.json();
+    })
+    .catch(function(e) {
+      console.error(e);
+      return { success: false, message: "Koneksi gagal." };
+    });
+}
+
+function getSession(key) {
+  if (!key) { key = "stetsa_session"; }
+  try {
+    var s = localStorage.getItem(key);
+    if (!s) { return null; }
+    var parsed = JSON.parse(s);
+    if (Date.now() > parsed.expires) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return parsed;
+  } catch(e) {
+    return null;
+  }
+}
+
+function toggleDropdown() {
+  var m = document.getElementById("dropdownMenu");
+  if (m) { m.classList.toggle("show"); }
+}
+
+function logout() {
+  localStorage.removeItem("stetsa_session");
+  showToast("Logout berhasil.", "info");
+  setTimeout(function() { window.location.href = "index.html"; }, 700);
+}
+
+var allPhotos = [];
+var lightboxList = [];
+var lightboxIdx = 0;
+var favorites = JSON.parse(localStorage.getItem("stetsa_favs") || "[]");
+
+window.addEventListener("DOMContentLoaded", function() {
+  var session = getSession("stetsa_session");
+  if (!session) {
+    window.location.href = "index.html";
+    return;
+  }
+  if (session.photoUrl) {
+    var btn = document.getElementById("avatarBtn");
+    if (btn) { btn.innerHTML = "<img src='" + session.photoUrl + "' alt='avatar'>"; }
+  }
+  loadGallery(session);
+  setupSwipeAndKeyboard();
+});
+
+function loadGallery(session) {
+  apiCall("getGallery", { userId: session.id, classId: session.classId }).then(function(res) {
+    var grid = document.getElementById("photoGrid");
+    if (!res.success) {
+      grid.innerHTML = "<p style='grid-column:1/-1;text-align:center;color:rgba(255,255,255,.4);padding:40px'>Gagal memuat galeri</p>";
+      showToast("Gagal memuat galeri.", "error");
+      return;
+    }
+    allPhotos = res.photos || [];
+    buildAlbumTabs(res.albums || []);
+    renderPhotos("all");
+    var subtitle = document.getElementById("gallerySubtitle");
+    if (subtitle) { subtitle.textContent = allPhotos.length + " foto tersedia"; }
+  });
+}
+
+function buildAlbumTabs(albums) {
+  var tabs = document.getElementById("albumTabs");
+  if (!tabs) { return; }
+  tabs.innerHTML = "<div class='album-tab active' onclick='filterAlbum("all",this)'><i class='fas fa-th'></i> Semua</div>";
+  for (var i = 0; i < albums.length; i++) {
+    var t = document.createElement("div");
+    t.className = "album-tab";
+    t.innerHTML = albums[i].name;
+    t.onclick = function(id) { return function() { filterAlbum(id, this); }; }(albums[i].id);
+    tabs.appendChild(t);
+  }
+}
+
+function filterAlbum(id, el) {
+  var tabs = document.querySelectorAll(".album-tab");
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.remove("active");
+  }
+  if (el) { el.classList.add("active"); }
+  renderPhotos(id);
+}
+
+function renderPhotos(albumId) {
+  var grid = document.getElementById("photoGrid");
+  var list = albumId === "all" ? allPhotos : allPhotos.filter(function(p) { return String(p.albumId) === String(albumId); });
+  lightboxList = list;
+  if (!list.length) {
+    grid.innerHTML = "<p style='grid-column:1/-1;text-align:center;color:rgba(255,255,255,.35);padding:40px'>Tidak ada foto di album ini</p>";
+    return;
+  }
+  grid.innerHTML = list.map(function(p, i) {
+    var isFav = favorites.indexOf(p.id) !== -1;
+    return "<div class='photo-card' onclick='openLightbox(" + i + ")'>" +
+      "<img src='" + (p.thumbnailUrl || p.url) + "' alt='" + p.name + "'>" +
+      "<div class='photo-overlay'>" +
+        "<button class='photo-btn fav" + (isFav ? " active" : "") + "' onclick='toggleFav(event,"" + p.id + "")'>" +
+          "<i class='fas fa-star'></i>" +
+        "</button>" +
+        "<button class='photo-btn' onclick='downloadPhoto(event,"" + p.url + "","" + p.name + "")'>" +
+          "<i class='fas fa-download'></i>" +
+        "</button>" +
+      "</div></div>";
+  }).join("");
+}
+
+function openLightbox(idx) {
+  lightboxIdx = idx;
+  var lb = document.getElementById("lightbox");
+  var img = document.getElementById("lightboxImg");
+  var info = document.getElementById("lightboxInfo");
+  img.src = lightboxList[idx].url;
+  if (info) { info.textContent = (idx + 1) + " / " + lightboxList.length; }
+  lb.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeLightbox() {
+  document.getElementById("lightbox").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function lightboxNav(dir) {
+  if (!lightboxList.length) { return; }
+  lightboxIdx = (lightboxIdx + dir + lightboxList.length) % lightboxList.length;
+  var img = document.getElementById("lightboxImg");
+  var info = document.getElementById("lightboxInfo");
+  img.src = lightboxList[lightboxIdx].url;
+  if (info) { info.textContent = (lightboxIdx + 1) + " / " + lightboxList.length; }
+}
+
+function downloadCurrentPhoto() {
+  var p = lightboxList[lightboxIdx];
+  if (p) { downloadPhoto(null, p.url, p.name || "foto"); }
+}
+
+function downloadPhoto(e, url, name) {
+  if (e) { e.stopPropagation(); }
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = name.indexOf(".jpg") === -1 && name.indexOf(".png") === -1 ? name + ".jpg" : name;
+  a.target = "_blank";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast("Mendownload...", "info");
+  var session = getSession("stetsa_session");
+  if (session) { apiPost("logDownload", { userId: session.id, photoName: name }); }
+}
+
+function toggleFav(e, photoId) {
+  e.stopPropagation();
+  var idx = favorites.indexOf(photoId);
+  if (idx === -1) {
+    favorites.push(photoId);
+    showToast("Ditambahkan ke favorit!", "success");
+  } else {
+    favorites.splice(idx, 1);
+    showToast("Dihapus dari favorit.", "info");
+  }
+  localStorage.setItem("stetsa_favs", JSON.stringify(favorites));
+  e.currentTarget.classList.toggle("active");
+}
+
+function setupSwipeAndKeyboard() {
+  var startX = 0;
+  var lb = document.getElementById("lightbox");
+  lb.addEventListener("touchstart", function(e) { startX = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener("touchend", function(e) {
+    var diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) { lightboxNav(diff > 0 ? 1 : -1); }
+  });
+  document.addEventListener("keydown", function(e) {
+    if (!lb.classList.contains("open")) { return; }
+    if (e.key === "ArrowRight") { lightboxNav(1); }
+    if (e.key === "ArrowLeft") { lightboxNav(-1); }
+    if (e.key === "Escape") { closeLightbox(); }
+  });
+}
+
+// ===== INIT =====
+window.addEventListener("DOMContentLoaded", function() {
+  var session = getSession("stetsa_session");
+  if (!session) {
+    window.location.href = "index.html";
+    return;
+  }
+  if (session.photoUrl) {
+    var btn = document.getElementById("avatarBtn");
+    if (btn) { btn.innerHTML = "<img src='" + session.photoUrl + "' alt='avatar'>"; }
+  }
+  loadGallery(session);
+  setupSwipeAndKeyboard();
+});
+</script>
+</body>
+</html>
